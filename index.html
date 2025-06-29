@@ -37,6 +37,9 @@
       transition: opacity 0.5s ease;
       opacity: 0;
       pointer-events: none;
+      user-select: none; /* evita selección al deslizar */
+      -webkit-user-select: none;
+      -ms-user-select: none;
     }
 
     .slide.active {
@@ -126,29 +129,13 @@
       border-radius: 10px;
     }
 
-    /* Ocultar botones en escritorio */
+    /* Ocultar botones para móviles */
     .nav-buttons {
       display: none;
     }
 
-    /* Mostrar botones en pantallas menores o iguales a 1000px */
-    @media (max-width: 1000px) {
-      h1 { font-size: 3.5rem; }
-      h2 { font-size: 2.8rem; }
-      p  { font-size: 1.6rem; }
-
-      .img-two {
-        flex-direction: column;
-      }
-
-      .img-two img {
-        max-width: 90%;
-      }
-
-      .logo-container {
-        flex-direction: column;
-      }
-
+    @media (min-width: 1001px) {
+      /* Mostrar botones sólo en pantallas grandes (escritorio) */
       .nav-buttons {
         display: flex;
         position: fixed;
@@ -171,6 +158,24 @@
 
       .nav-buttons button:hover {
         background-color: #ddd;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      h1 { font-size: 3.5rem; }
+      h2 { font-size: 2.8rem; }
+      p  { font-size: 1.6rem; }
+
+      .img-two {
+        flex-direction: column;
+      }
+
+      .img-two img {
+        max-width: 90%;
+      }
+
+      .logo-container {
+        flex-direction: column;
       }
     }
   </style>
@@ -266,7 +271,7 @@
     </div>
   </section>
 
-  <!-- Botones de navegación -->
+  <!-- Botones de navegación (ocultos para móviles) -->
   <div class="nav-buttons">
     <button id="prevBtn" onclick="prevSlide()">← Anterior</button>
     <button id="nextBtn" onclick="nextSlide()">Siguiente →</button>
@@ -311,13 +316,38 @@
       }
     }
 
+    // Navegación con teclado para desktop
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') nextSlide();
       if (e.key === 'ArrowLeft') prevSlide();
     });
 
+    // Swipe para móviles
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    function handleGesture() {
+      if (touchEndX < touchStartX - 50) {
+        nextSlide();
+      }
+      if (touchEndX > touchStartX + 50) {
+        prevSlide();
+      }
+    }
+
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleGesture();
+    });
+
+    // Inicializar
     showSlide(current);
   </script>
 
 </body>
 </html>
+
